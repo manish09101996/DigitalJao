@@ -14,8 +14,8 @@ export default {
     theme: {
         extend: {
             fontFamily: {
-                sans: ['Plus Jakarta Sans', 'Inter', ...defaultTheme.fontFamily.sans],
-                display: ['Syne', 'Plus Jakarta Sans', ...defaultTheme.fontFamily.sans],
+                sans: ['Outfit', 'Poppins', ...defaultTheme.fontFamily.sans],
+                display: ['Outfit', 'Poppins', ...defaultTheme.fontFamily.sans],
             },
             colors: {
                 brand: {
