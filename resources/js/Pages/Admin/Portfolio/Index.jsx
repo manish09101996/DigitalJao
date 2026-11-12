@@ -296,7 +296,7 @@ export default function PortfolioAdmin({ projects, categories }) {
                                         <div className="flex flex-wrap items-center gap-2">
                                             <label className="cursor-pointer inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl font-bold text-xs bg-gradient-to-r from-[#1769FF] to-[#19C8F5] text-white shadow-neon hover:scale-105 transition-all">
                                                 <Upload className="w-3.5 h-3.5" />
-                                                <span>Upload Image</span>
+                                                <span>Choose Image File</span>
                                                 <input
                                                     type="file"
                                                     accept="image/*"
@@ -310,6 +310,11 @@ export default function PortfolioAdmin({ projects, categories }) {
                                                     }}
                                                 />
                                             </label>
+                                            {data.image_file && (
+                                                <span className="text-xs text-emerald-400 font-medium truncate max-w-[180px]">
+                                                    ✓ {data.image_file.name}
+                                                </span>
+                                            )}
                                             {createImagePreview && (
                                                 <button
                                                     type="button"
@@ -319,11 +324,11 @@ export default function PortfolioAdmin({ projects, categories }) {
                                                     }}
                                                     className="px-2.5 py-1.5 text-xs text-slate-400 hover:text-rose-400"
                                                 >
-                                                    Cancel
+                                                    Remove
                                                 </button>
                                             )}
                                         </div>
-                                        <p className="text-[11px] text-slate-400">PNG, JPG, WebP up to 5MB</p>
+                                        <p className="text-[11px] text-slate-400">Upload directly from your device (PNG, JPG, WebP up to 5MB)</p>
                                     </div>
                                 </div>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
@@ -488,7 +493,7 @@ export default function PortfolioAdmin({ projects, categories }) {
                                         <div className="flex flex-wrap items-center gap-2">
                                             <label className="cursor-pointer inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl font-bold text-xs bg-gradient-to-r from-[#1769FF] to-[#19C8F5] text-white shadow-neon hover:scale-105 transition-all">
                                                 <Upload className="w-3.5 h-3.5" />
-                                                <span>Upload New Image</span>
+                                                <span>Choose New Image File</span>
                                                 <input
                                                     type="file"
                                                     accept="image/*"
@@ -502,6 +507,11 @@ export default function PortfolioAdmin({ projects, categories }) {
                                                     }}
                                                 />
                                             </label>
+                                            {editForm.data.image_file && (
+                                                <span className="text-xs text-emerald-400 font-medium truncate max-w-[180px]">
+                                                    ✓ {editForm.data.image_file.name}
+                                                </span>
+                                            )}
                                             {editImagePreview && (
                                                 <button
                                                     type="button"
@@ -511,11 +521,11 @@ export default function PortfolioAdmin({ projects, categories }) {
                                                     }}
                                                     className="px-2.5 py-1.5 text-xs text-slate-400 hover:text-rose-400"
                                                 >
-                                                    Cancel
+                                                    Remove
                                                 </button>
                                             )}
                                         </div>
-                                        <p className="text-[11px] text-slate-400">PNG, JPG, WebP up to 5MB</p>
+                                        <p className="text-[11px] text-slate-400">Upload directly from your device (PNG, JPG, WebP up to 5MB)</p>
                                     </div>
                                 </div>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">

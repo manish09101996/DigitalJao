@@ -259,7 +259,7 @@ export default function ProductionAdmin({ categories, media }) {
                                         <div className="flex flex-wrap items-center gap-2">
                                             <label className="cursor-pointer inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl font-bold text-xs bg-gradient-to-r from-[#1769FF] to-[#19C8F5] text-white shadow-neon hover:scale-105 transition-all">
                                                 <Upload className="w-3.5 h-3.5" />
-                                                <span>Upload Photo File</span>
+                                                <span>Choose Photo File</span>
                                                 <input
                                                     type="file"
                                                     accept="image/*"
@@ -273,6 +273,11 @@ export default function ProductionAdmin({ categories, media }) {
                                                     }}
                                                 />
                                             </label>
+                                            {mediaForm.data.media_file && (
+                                                <span className="text-xs text-emerald-400 font-medium truncate max-w-[180px]">
+                                                    ✓ {mediaForm.data.media_file.name}
+                                                </span>
+                                            )}
                                             {mediaFilePreview && (
                                                 <button
                                                     type="button"
@@ -282,7 +287,7 @@ export default function ProductionAdmin({ categories, media }) {
                                                     }}
                                                     className="px-2.5 py-1.5 text-xs text-slate-400 hover:text-rose-400"
                                                 >
-                                                    Cancel
+                                                    Remove
                                                 </button>
                                             )}
                                         </div>
