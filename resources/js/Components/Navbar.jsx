@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, usePage } from '@inertiajs/react';
-import { Menu, X, ArrowUpRight, Phone, Sparkles, LayoutDashboard } from 'lucide-react';
+import { Menu, X, ArrowUpRight, Phone, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Navbar() {
@@ -73,16 +73,6 @@ export default function Navbar() {
 
                     {/* Right Action Buttons */}
                     <div className="hidden lg:flex items-center gap-3">
-                        {auth?.is_admin && (
-                            <Link
-                                href={route('admin.dashboard')}
-                                className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20 transition-colors"
-                            >
-                                <LayoutDashboard className="w-3.5 h-3.5" />
-                                Admin Panel
-                            </Link>
-                        )}
-
                         <Link
                             href={route('contact.index')}
                             className="group relative inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold rounded-full overflow-hidden bg-gradient-to-r from-[#1769FF] to-[#19C8F5] text-white shadow-[0_0_20px_rgba(23,105,255,0.4)] hover:shadow-[0_0_30px_rgba(25,200,245,0.6)] transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
@@ -95,14 +85,6 @@ export default function Navbar() {
 
                     {/* Mobile Menu Button */}
                     <div className="lg:hidden flex items-center gap-2">
-                        {auth?.is_admin && (
-                            <Link
-                                href={route('admin.dashboard')}
-                                className="p-2 text-xs rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
-                            >
-                                <LayoutDashboard className="w-4 h-4" />
-                            </Link>
-                        )}
                         <button
                             type="button"
                             onClick={() => setMobileOpen(!mobileOpen)}
