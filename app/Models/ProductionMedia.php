@@ -32,4 +32,15 @@ class ProductionMedia extends Model
     {
         return $this->belongsTo(ProductionCategory::class, 'production_category_id');
     }
+
+    public function getFilePathAttribute($value): ?string
+    {
+        if (empty($value)) {
+            return $value;
+        }
+        if (str_starts_with($value, 'http://') || str_starts_with($value, 'https://')) {
+            return $value;
+        }
+        return asset(ltrim($value, '/'));
+    }
 }

@@ -48,20 +48,20 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     // Manage Services
     Route::get('/services', [AdminServiceController::class, 'index'])->name('services.index');
     Route::post('/services', [AdminServiceController::class, 'store'])->name('services.store');
-    Route::put('/services/{service}', [AdminServiceController::class, 'update'])->name('services.update');
+    Route::match(['put', 'post'], '/services/{service}', [AdminServiceController::class, 'update'])->name('services.update');
     Route::delete('/services/{service}', [AdminServiceController::class, 'destroy'])->name('services.destroy');
 
     // Manage Portfolio
     Route::get('/portfolio', [AdminPortfolioController::class, 'index'])->name('portfolio.index');
     Route::post('/portfolio', [AdminPortfolioController::class, 'store'])->name('portfolio.store');
-    Route::put('/portfolio/{project}', [AdminPortfolioController::class, 'update'])->name('portfolio.update');
+    Route::match(['put', 'post'], '/portfolio/{project}', [AdminPortfolioController::class, 'update'])->name('portfolio.update');
     Route::delete('/portfolio/{project}', [AdminPortfolioController::class, 'destroy'])->name('portfolio.destroy');
 
     // Manage DigitalJao Production
     Route::get('/production', [AdminProductionController::class, 'index'])->name('production.index');
     Route::post('/production/categories', [AdminProductionController::class, 'storeCategory'])->name('production.categories.store');
     Route::post('/production/media', [AdminProductionController::class, 'storeMedia'])->name('production.media.store');
-    Route::put('/production/media/{media}', [AdminProductionController::class, 'updateMedia'])->name('production.media.update');
+    Route::match(['put', 'post'], '/production/media/{media}', [AdminProductionController::class, 'updateMedia'])->name('production.media.update');
     Route::delete('/production/media/{media}', [AdminProductionController::class, 'destroyMedia'])->name('production.media.destroy');
 
     // Manage Enquiries

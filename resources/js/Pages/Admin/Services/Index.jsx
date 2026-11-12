@@ -10,12 +10,16 @@ import {
     Sparkles,
     Eye,
     EyeOff,
-    ExternalLink
+    ExternalLink,
+    Upload,
+    Image as ImageIcon
 } from 'lucide-react';
 
 export default function ServicesAdmin({ services }) {
     const [isCreateOpen, setIsCreateOpen] = useState(false);
     const [editingService, setEditingService] = useState(null);
+    const [createImagePreview, setCreateImagePreview] = useState(null);
+    const [editImagePreview, setEditImagePreview] = useState(null);
 
     const { data, setData, post, reset, processing, errors } = useForm({
         title: '',
@@ -25,6 +29,7 @@ export default function ServicesAdmin({ services }) {
         description: '',
         icon: 'Sparkles',
         image: '',
+        image_file: null,
         featured: false,
         is_active: true,
         order: 0,
@@ -40,6 +45,7 @@ export default function ServicesAdmin({ services }) {
         description: '',
         icon: 'Sparkles',
         image: '',
+        image_file: null,
         featured: false,
         is_active: true,
         order: 0,
@@ -49,6 +55,7 @@ export default function ServicesAdmin({ services }) {
 
     const handleOpenEdit = (service) => {
         setEditingService(service);
+        setEditImagePreview(null);
         editForm.setData({
             title: service.title,
             slug: service.slug,
@@ -57,6 +64,7 @@ export default function ServicesAdmin({ services }) {
             description: service.description || '',
             icon: service.icon || 'Sparkles',
             image: service.image || '',
+            image_file: null,
             featured: Boolean(service.featured),
             is_active: Boolean(service.is_active),
             order: service.order || 0,
@@ -68,8 +76,10 @@ export default function ServicesAdmin({ services }) {
     const handleCreateSubmit = (e) => {
         e.preventDefault();
         post(route('admin.services.store'), {
+            forceFormData: true,
             onSuccess: () => {
                 reset();
+                setCreateImagePreview(null);
                 setIsCreateOpen(false);
             },
         });
@@ -77,9 +87,11 @@ export default function ServicesAdmin({ services }) {
 
     const handleEditSubmit = (e) => {
         e.preventDefault();
-        editForm.put(route('admin.services.update', editingService.id), {
+        editForm.post(route('admin.services.update', editingService.id), {
+            forceFormData: true,
             onSuccess: () => {
                 setEditingService(null);
+                setEditImagePreview(null);
             },
         });
     };
@@ -251,25 +263,77 @@ export default function ServicesAdmin({ services }) {
                                 />
                             </div>
 
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-xs font-semibold text-slate-300 mb-1">Cover Image URL</label>
-                                    <input
-                                        type="text"
-                                        value={data.image}
-                                        onChange={(e) => setData('image', e.target.value)}
-                                        className="w-full px-4 py-2.5 rounded-xl glass-input text-sm"
-                                        placeholder="https://..."
-                                    />
+                            {/* Cover Image Upload & URL */}
+                            <div className="p-4 rounded-2xl bg-[#041228]/80 border border-[#1769FF]/30 space-y-3">
+                                <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                                    Service Cover Image
+                                </label>
+                                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                                    <div className="w-24 h-16 rounded-xl overflow-hidden bg-[#030E1F] border border-[#1769FF]/40 shrink-0 flex items-center justify-center">
+                                        {(createImagePreview || data.image) ? (
+                                            <img
+                                                src={createImagePreview || data.image}
+                                                alt="Preview"
+                                                className="w-full h-full object-cover"
+                                            />
+                                        ) : (
+                                            <ImageIcon className="w-6 h-6 text-slate-500" />
+                                        )}
+                                    </div>
+                                    <div className="flex-1 space-y-1.5">
+                                        <div className="flex flex-wrap items-center gap-2">
+                                            <label className="cursor-pointer inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl font-bold text-xs bg-gradient-to-r from-[#1769FF] to-[#19C8F5] text-white shadow-neon hover:scale-105 transition-all">
+                                                <Upload className="w-3.5 h-3.5" />
+                                                <span>Upload Image File</span>
+                                                <input
+                                                    type="file"
+                                                    accept="image/*"
+                                                    className="hidden"
+                                                    onChange={(e) => {
+                                                        const file = e.target.files[0];
+                                                        if (file) {
+                                                            setData('image_file', file);
+                                                            setCreateImagePreview(URL.createObjectURL(file));
+                                                        }
+                                                    }}
+                                                />
+                                            </label>
+                                            {createImagePreview && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setCreateImagePreview(null);
+                                                        setData('image_file', null);
+                                                    }}
+                                                    className="px-2.5 py-1.5 text-xs text-slate-400 hover:text-rose-400"
+                                                >
+                                                    Cancel
+                                                </button>
+                                            )}
+                                        </div>
+                                        <p className="text-[11px] text-slate-400">PNG, JPG, WebP up to 5MB</p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <label className="block text-xs font-semibold text-slate-300 mb-1">Display Order</label>
-                                    <input
-                                        type="number"
-                                        value={data.order}
-                                        onChange={(e) => setData('order', parseInt(e.target.value) || 0)}
-                                        className="w-full px-4 py-2.5 rounded-xl glass-input text-sm"
-                                    />
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+                                    <div>
+                                        <label className="block text-[11px] text-slate-400 mb-1">Or Image URL</label>
+                                        <input
+                                            type="text"
+                                            value={data.image}
+                                            onChange={(e) => setData('image', e.target.value)}
+                                            placeholder="https://..."
+                                            className="w-full px-4 py-2 rounded-xl glass-input text-xs font-mono"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-[11px] text-slate-400 mb-1">Display Order</label>
+                                        <input
+                                            type="number"
+                                            value={data.order}
+                                            onChange={(e) => setData('order', parseInt(e.target.value) || 0)}
+                                            className="w-full px-4 py-2 rounded-xl glass-input text-xs"
+                                        />
+                                    </div>
                                 </div>
                             </div>
 
@@ -377,24 +441,76 @@ export default function ServicesAdmin({ services }) {
                                 />
                             </div>
 
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-xs font-semibold text-slate-300 mb-1">Cover Image URL</label>
-                                    <input
-                                        type="text"
-                                        value={editForm.data.image}
-                                        onChange={(e) => editForm.setData('image', e.target.value)}
-                                        className="w-full px-4 py-2.5 rounded-xl glass-input text-sm"
-                                    />
+                            {/* Service Cover Image Upload & URL */}
+                            <div className="p-4 rounded-2xl bg-[#041228]/80 border border-[#1769FF]/30 space-y-3">
+                                <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                                    Service Cover Image
+                                </label>
+                                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                                    <div className="w-24 h-16 rounded-xl overflow-hidden bg-[#030E1F] border border-[#1769FF]/40 shrink-0 flex items-center justify-center">
+                                        {(editImagePreview || editForm.data.image) ? (
+                                            <img
+                                                src={editImagePreview || editForm.data.image}
+                                                alt="Preview"
+                                                className="w-full h-full object-cover"
+                                            />
+                                        ) : (
+                                            <ImageIcon className="w-6 h-6 text-slate-500" />
+                                        )}
+                                    </div>
+                                    <div className="flex-1 space-y-1.5">
+                                        <div className="flex flex-wrap items-center gap-2">
+                                            <label className="cursor-pointer inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl font-bold text-xs bg-gradient-to-r from-[#1769FF] to-[#19C8F5] text-white shadow-neon hover:scale-105 transition-all">
+                                                <Upload className="w-3.5 h-3.5" />
+                                                <span>Upload New Image</span>
+                                                <input
+                                                    type="file"
+                                                    accept="image/*"
+                                                    className="hidden"
+                                                    onChange={(e) => {
+                                                        const file = e.target.files[0];
+                                                        if (file) {
+                                                            editForm.setData('image_file', file);
+                                                            setEditImagePreview(URL.createObjectURL(file));
+                                                        }
+                                                    }}
+                                                />
+                                            </label>
+                                            {editImagePreview && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setEditImagePreview(null);
+                                                        editForm.setData('image_file', null);
+                                                    }}
+                                                    className="px-2.5 py-1.5 text-xs text-slate-400 hover:text-rose-400"
+                                                >
+                                                    Cancel Selection
+                                                </button>
+                                            )}
+                                        </div>
+                                        <p className="text-[11px] text-slate-400">PNG, JPG, WebP up to 5MB</p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <label className="block text-xs font-semibold text-slate-300 mb-1">Order</label>
-                                    <input
-                                        type="number"
-                                        value={editForm.data.order}
-                                        onChange={(e) => editForm.setData('order', parseInt(e.target.value) || 0)}
-                                        className="w-full px-4 py-2.5 rounded-xl glass-input text-sm"
-                                    />
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+                                    <div>
+                                        <label className="block text-[11px] text-slate-400 mb-1">Or Image URL</label>
+                                        <input
+                                            type="text"
+                                            value={editForm.data.image}
+                                            onChange={(e) => editForm.setData('image', e.target.value)}
+                                            className="w-full px-4 py-2 rounded-xl glass-input text-xs font-mono"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-[11px] text-slate-400 mb-1">Order</label>
+                                        <input
+                                            type="number"
+                                            value={editForm.data.order}
+                                            onChange={(e) => editForm.setData('order', parseInt(e.target.value) || 0)}
+                                            className="w-full px-4 py-2 rounded-xl glass-input text-xs"
+                                        />
+                                    </div>
                                 </div>
                             </div>
 

@@ -56,4 +56,15 @@ class PortfolioProject extends Model
     {
         return $query->where('is_featured', true)->where('is_published', true)->orderBy('order', 'asc');
     }
+
+    public function getFeaturedImageAttribute($value): ?string
+    {
+        if (empty($value)) {
+            return $value;
+        }
+        if (str_starts_with($value, 'http://') || str_starts_with($value, 'https://')) {
+            return $value;
+        }
+        return asset(ltrim($value, '/'));
+    }
 }

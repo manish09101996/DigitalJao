@@ -6,12 +6,16 @@ import {
     Edit2,
     Trash2,
     ExternalLink,
-    FolderKanban
+    FolderKanban,
+    Upload,
+    Image as ImageIcon
 } from 'lucide-react';
 
 export default function PortfolioAdmin({ projects, categories }) {
     const [isCreateOpen, setIsCreateOpen] = useState(false);
     const [editingProject, setEditingProject] = useState(null);
+    const [createImagePreview, setCreateImagePreview] = useState(null);
+    const [editImagePreview, setEditImagePreview] = useState(null);
 
     const { data, setData, post, reset, processing, errors } = useForm({
         category_id: categories[0]?.id || '',
@@ -21,6 +25,7 @@ export default function PortfolioAdmin({ projects, categories }) {
         summary: '',
         description: '',
         featured_image: '',
+        image_file: null,
         video_url: '',
         results_metric: '+350% ROAS',
         results_label: 'Blended Return',
@@ -37,6 +42,7 @@ export default function PortfolioAdmin({ projects, categories }) {
         summary: '',
         description: '',
         featured_image: '',
+        image_file: null,
         video_url: '',
         results_metric: '',
         results_label: '',
@@ -47,6 +53,7 @@ export default function PortfolioAdmin({ projects, categories }) {
 
     const handleOpenEdit = (project) => {
         setEditingProject(project);
+        setEditImagePreview(null);
         editForm.setData({
             category_id: project.category_id || '',
             title: project.title,
@@ -55,6 +62,7 @@ export default function PortfolioAdmin({ projects, categories }) {
             summary: project.summary || '',
             description: project.description || '',
             featured_image: project.featured_image || '',
+            image_file: null,
             video_url: project.video_url || '',
             results_metric: project.results_metric || '',
             results_label: project.results_label || '',
@@ -67,8 +75,10 @@ export default function PortfolioAdmin({ projects, categories }) {
     const handleCreateSubmit = (e) => {
         e.preventDefault();
         post(route('admin.portfolio.store'), {
+            forceFormData: true,
             onSuccess: () => {
                 reset();
+                setCreateImagePreview(null);
                 setIsCreateOpen(false);
             },
         });
@@ -76,9 +86,11 @@ export default function PortfolioAdmin({ projects, categories }) {
 
     const handleEditSubmit = (e) => {
         e.preventDefault();
-        editForm.put(route('admin.portfolio.update', editingProject.id), {
+        editForm.post(route('admin.portfolio.update', editingProject.id), {
+            forceFormData: true,
             onSuccess: () => {
                 setEditingProject(null);
+                setEditImagePreview(null);
             },
         });
     };
@@ -263,24 +275,78 @@ export default function PortfolioAdmin({ projects, categories }) {
                                 />
                             </div>
 
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-xs font-semibold text-slate-300 mb-1">Featured Image URL</label>
-                                    <input
-                                        type="text"
-                                        value={data.featured_image}
-                                        onChange={(e) => setData('featured_image', e.target.value)}
-                                        className="w-full px-4 py-2.5 rounded-xl glass-input text-sm"
-                                    />
+                            {/* Featured Image Upload & URL */}
+                            <div className="p-4 rounded-2xl bg-[#041228]/80 border border-[#1769FF]/30 space-y-3">
+                                <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                                    Project Featured Image
+                                </label>
+                                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                                    <div className="w-24 h-16 rounded-xl overflow-hidden bg-[#030E1F] border border-[#1769FF]/40 shrink-0 flex items-center justify-center">
+                                        {(createImagePreview || data.featured_image) ? (
+                                            <img
+                                                src={createImagePreview || data.featured_image}
+                                                alt="Preview"
+                                                className="w-full h-full object-cover"
+                                            />
+                                        ) : (
+                                            <ImageIcon className="w-6 h-6 text-slate-500" />
+                                        )}
+                                    </div>
+                                    <div className="flex-1 space-y-1.5">
+                                        <div className="flex flex-wrap items-center gap-2">
+                                            <label className="cursor-pointer inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl font-bold text-xs bg-gradient-to-r from-[#1769FF] to-[#19C8F5] text-white shadow-neon hover:scale-105 transition-all">
+                                                <Upload className="w-3.5 h-3.5" />
+                                                <span>Upload Image</span>
+                                                <input
+                                                    type="file"
+                                                    accept="image/*"
+                                                    className="hidden"
+                                                    onChange={(e) => {
+                                                        const file = e.target.files[0];
+                                                        if (file) {
+                                                            setData('image_file', file);
+                                                            setCreateImagePreview(URL.createObjectURL(file));
+                                                        }
+                                                    }}
+                                                />
+                                            </label>
+                                            {createImagePreview && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setCreateImagePreview(null);
+                                                        setData('image_file', null);
+                                                    }}
+                                                    className="px-2.5 py-1.5 text-xs text-slate-400 hover:text-rose-400"
+                                                >
+                                                    Cancel
+                                                </button>
+                                            )}
+                                        </div>
+                                        <p className="text-[11px] text-slate-400">PNG, JPG, WebP up to 5MB</p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <label className="block text-xs font-semibold text-slate-300 mb-1">Video URL (YouTube / MP4)</label>
-                                    <input
-                                        type="text"
-                                        value={data.video_url}
-                                        onChange={(e) => setData('video_url', e.target.value)}
-                                        className="w-full px-4 py-2.5 rounded-xl glass-input text-sm"
-                                    />
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+                                    <div>
+                                        <label className="block text-[11px] text-slate-400 mb-1">Or Image URL</label>
+                                        <input
+                                            type="text"
+                                            value={data.featured_image}
+                                            onChange={(e) => setData('featured_image', e.target.value)}
+                                            placeholder="https://..."
+                                            className="w-full px-4 py-2 rounded-xl glass-input text-xs font-mono"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-[11px] text-slate-400 mb-1">Video URL (YouTube / MP4)</label>
+                                        <input
+                                            type="text"
+                                            value={data.video_url}
+                                            onChange={(e) => setData('video_url', e.target.value)}
+                                            placeholder="https://youtube.com/..."
+                                            className="w-full px-4 py-2 rounded-xl glass-input text-xs"
+                                        />
+                                    </div>
                                 </div>
                             </div>
 
@@ -401,24 +467,76 @@ export default function PortfolioAdmin({ projects, categories }) {
                                 />
                             </div>
 
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-xs font-semibold text-slate-300 mb-1">Featured Image URL</label>
-                                    <input
-                                        type="text"
-                                        value={editForm.data.featured_image}
-                                        onChange={(e) => editForm.setData('featured_image', e.target.value)}
-                                        className="w-full px-4 py-2.5 rounded-xl glass-input text-sm"
-                                    />
+                            {/* Featured Image Upload & URL */}
+                            <div className="p-4 rounded-2xl bg-[#041228]/80 border border-[#1769FF]/30 space-y-3">
+                                <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                                    Project Featured Image
+                                </label>
+                                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                                    <div className="w-24 h-16 rounded-xl overflow-hidden bg-[#030E1F] border border-[#1769FF]/40 shrink-0 flex items-center justify-center">
+                                        {(editImagePreview || editForm.data.featured_image) ? (
+                                            <img
+                                                src={editImagePreview || editForm.data.featured_image}
+                                                alt="Preview"
+                                                className="w-full h-full object-cover"
+                                            />
+                                        ) : (
+                                            <ImageIcon className="w-6 h-6 text-slate-500" />
+                                        )}
+                                    </div>
+                                    <div className="flex-1 space-y-1.5">
+                                        <div className="flex flex-wrap items-center gap-2">
+                                            <label className="cursor-pointer inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl font-bold text-xs bg-gradient-to-r from-[#1769FF] to-[#19C8F5] text-white shadow-neon hover:scale-105 transition-all">
+                                                <Upload className="w-3.5 h-3.5" />
+                                                <span>Upload New Image</span>
+                                                <input
+                                                    type="file"
+                                                    accept="image/*"
+                                                    className="hidden"
+                                                    onChange={(e) => {
+                                                        const file = e.target.files[0];
+                                                        if (file) {
+                                                            editForm.setData('image_file', file);
+                                                            setEditImagePreview(URL.createObjectURL(file));
+                                                        }
+                                                    }}
+                                                />
+                                            </label>
+                                            {editImagePreview && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        setEditImagePreview(null);
+                                                        editForm.setData('image_file', null);
+                                                    }}
+                                                    className="px-2.5 py-1.5 text-xs text-slate-400 hover:text-rose-400"
+                                                >
+                                                    Cancel
+                                                </button>
+                                            )}
+                                        </div>
+                                        <p className="text-[11px] text-slate-400">PNG, JPG, WebP up to 5MB</p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <label className="block text-xs font-semibold text-slate-300 mb-1">Video URL</label>
-                                    <input
-                                        type="text"
-                                        value={editForm.data.video_url}
-                                        onChange={(e) => editForm.setData('video_url', e.target.value)}
-                                        className="w-full px-4 py-2.5 rounded-xl glass-input text-sm"
-                                    />
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+                                    <div>
+                                        <label className="block text-[11px] text-slate-400 mb-1">Or Image URL</label>
+                                        <input
+                                            type="text"
+                                            value={editForm.data.featured_image}
+                                            onChange={(e) => editForm.setData('featured_image', e.target.value)}
+                                            className="w-full px-4 py-2 rounded-xl glass-input text-xs font-mono"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-[11px] text-slate-400 mb-1">Video URL</label>
+                                        <input
+                                            type="text"
+                                            value={editForm.data.video_url}
+                                            onChange={(e) => editForm.setData('video_url', e.target.value)}
+                                            className="w-full px-4 py-2 rounded-xl glass-input text-xs"
+                                        />
+                                    </div>
                                 </div>
                             </div>
 

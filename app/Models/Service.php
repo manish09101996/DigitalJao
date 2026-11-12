@@ -49,4 +49,15 @@ class Service extends Model
     {
         return $query->where('featured', true)->where('is_active', true)->orderBy('order', 'asc');
     }
+
+    public function getImageAttribute($value): ?string
+    {
+        if (empty($value)) {
+            return $value;
+        }
+        if (str_starts_with($value, 'http://') || str_starts_with($value, 'https://')) {
+            return $value;
+        }
+        return asset(ltrim($value, '/'));
+    }
 }
