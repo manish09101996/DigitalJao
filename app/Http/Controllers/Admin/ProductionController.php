@@ -98,6 +98,11 @@ class ProductionController extends Controller
             $validated['slug'] = Str::slug($validated['name']);
         }
 
+        if ($request->hasFile('hero_image_file')) {
+            $path = $request->file('hero_image_file')->store('production_categories', 'public');
+            $validated['hero_image'] = '/storage/' . $path;
+        }
+
         ProductionCategory::create($validated);
 
         return back()->with('success', 'Production category created successfully!');

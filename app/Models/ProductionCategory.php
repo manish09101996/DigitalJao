@@ -26,4 +26,15 @@ class ProductionCategory extends Model
     {
         return $this->hasMany(ProductionMedia::class)->orderBy('order', 'asc');
     }
+
+    public function getHeroImageAttribute($value): ?string
+    {
+        if (empty($value)) {
+            return $value;
+        }
+        if (str_starts_with($value, 'http://') || str_starts_with($value, 'https://')) {
+            return $value;
+        }
+        return asset(ltrim($value, '/'));
+    }
 }

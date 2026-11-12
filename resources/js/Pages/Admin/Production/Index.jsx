@@ -31,11 +31,14 @@ export default function ProductionAdmin({ categories, media }) {
         order: 0,
     });
 
+    const [categoryImagePreview, setCategoryImagePreview] = useState(null);
+
     const categoryForm = useForm({
         name: '',
         slug: '',
         description: '',
         hero_image: '',
+        hero_image_file: null,
         order: 0,
     });
 
@@ -54,8 +57,10 @@ export default function ProductionAdmin({ categories, media }) {
     const handleCategorySubmit = (e) => {
         e.preventDefault();
         categoryForm.post(route('admin.production.categories.store'), {
+            forceFormData: true,
             onSuccess: () => {
                 categoryForm.reset();
+                setCategoryImagePreview(null);
                 setIsCategoryOpen(false);
             },
         });
@@ -393,15 +398,56 @@ export default function ProductionAdmin({ categories, media }) {
                                     placeholder="e.g. Fashion & Editorial Shoots"
                                 />
                             </div>
-                            <div>
-                                <label className="block text-xs font-semibold text-slate-300 mb-1">Hero Image URL</label>
-                                <input
-                                    type="text"
-                                    value={categoryForm.data.hero_image}
-                                    onChange={(e) => categoryForm.setData('hero_image', e.target.value)}
-                                    className="w-full px-4 py-2.5 rounded-xl glass-input text-sm"
-                                    placeholder="https://..."
-                                />
+                            <div className="p-3.5 rounded-2xl bg-[#041228]/80 border border-[#1769FF]/30 space-y-2.5">
+                                <label className="block text-xs font-semibold text-slate-300">Category Hero Cover</label>
+                                <div className="flex items-center gap-3">
+                                    <div className="w-16 h-12 rounded-lg bg-[#030E1F] border border-[#1769FF]/40 overflow-hidden flex items-center justify-center shrink-0">
+                                        {(categoryImagePreview || categoryForm.data.hero_image) ? (
+                                            <img
+                                                src={categoryImagePreview || categoryForm.data.hero_image}
+                                                alt="Preview"
+                                                className="w-full h-full object-cover"
+                                            />
+                                        ) : (
+                                            <ImageIcon className="w-5 h-5 text-slate-500" />
+                                        )}
+                                    </div>
+                                    <div className="flex-1 space-y-1">
+                                        <div className="flex items-center gap-2">
+                                            <label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold text-xs bg-gradient-to-r from-[#1769FF] to-[#19C8F5] text-white shadow-neon hover:scale-105 transition-all">
+                                                <Upload className="w-3 h-3" />
+                                                <span>Choose Image File</span>
+                                                <input
+                                                    type="file"
+                                                    accept="image/*"
+                                                    className="hidden"
+                                                    onChange={(e) => {
+                                                        const file = e.target.files[0];
+                                                        if (file) {
+                                                            categoryForm.setData('hero_image_file', file);
+                                                            setCategoryImagePreview(URL.createObjectURL(file));
+                                                        }
+                                                    }}
+                                                />
+                                            </label>
+                                            {categoryForm.data.hero_image_file && (
+                                                <span className="text-xs text-emerald-400 font-medium truncate max-w-[140px]">
+                                                    ✓ {categoryForm.data.hero_image_file.name}
+                                                </span>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label className="block text-[11px] text-slate-400 mb-1">Or Hero Image URL</label>
+                                    <input
+                                        type="text"
+                                        value={categoryForm.data.hero_image}
+                                        onChange={(e) => categoryForm.setData('hero_image', e.target.value)}
+                                        className="w-full px-3 py-1.5 rounded-xl glass-input text-xs font-mono"
+                                        placeholder="https://..."
+                                    />
+                                </div>
                             </div>
                             <div>
                                 <label className="block text-xs font-semibold text-slate-300 mb-1">Description</label>
