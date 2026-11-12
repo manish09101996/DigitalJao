@@ -1,13 +1,17 @@
+import { useState } from 'react';
 import { useForm } from '@inertiajs/react';
 import AdminLayout from '@/Layouts/AdminLayout';
-import { Save, Globe, Phone, Mail, MapPin, Share2, Shield } from 'lucide-react';
+import { Save, Globe, Phone, Mail, MapPin, Share2, Shield, Upload, Image as ImageIcon } from 'lucide-react';
 
 export default function SettingsAdmin({ settings }) {
-    const { data, setData, post, processing, recentlySuccessful } = useForm({
+    const [previewUrl, setPreviewUrl] = useState(null);
+
+    const { data, setData, post, processing, errors, recentlySuccessful } = useForm({
         site_name: settings?.site_name || 'DigitalJao',
         site_tagline: settings?.site_tagline || 'Your Brand Deserves to Be Seen.',
         site_subtagline: settings?.site_subtagline || 'Strategy, creativity and execution – all in one place.',
-        site_logo: settings?.site_logo || '/images/digitaljao-logo.jpg',
+        site_logo: settings?.site_logo || '/images/digitaljao-logo.png',
+        site_logo_file: null,
         contact_email: settings?.contact_email || 'contact@digitaljao.com',
         contact_phone: settings?.contact_phone || '+91 98765 43210',
         contact_whatsapp: settings?.contact_whatsapp || '+919876543210',
@@ -23,9 +27,22 @@ export default function SettingsAdmin({ settings }) {
         meta_description: settings?.meta_description || '',
     });
 
+    const handleLogoFileChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setData('site_logo_file', file);
+            setPreviewUrl(URL.createObjectURL(file));
+        }
+    };
+
     const handleSubmit = (e) => {
         e.preventDefault();
-        post(route('admin.settings.update'));
+        post(route('admin.settings.update'), {
+            forceFormData: true,
+            onSuccess: () => {
+                setData('site_logo_file', null);
+            },
+        });
     };
 
     return (
@@ -50,23 +67,87 @@ export default function SettingsAdmin({ settings }) {
                             <span>Brand Identity</span>
                         </div>
 
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-xs font-semibold text-slate-300 mb-1">Brand Name</label>
-                                <input
-                                    type="text"
-                                    value={data.site_name}
-                                    onChange={(e) => setData('site_name', e.target.value)}
-                                    className="w-full px-4 py-2.5 rounded-xl glass-input text-sm"
-                                />
+                        {/* Brand Name */}
+                        <div>
+                            <label className="block text-xs font-semibold text-slate-300 mb-1">Brand Name</label>
+                            <input
+                                type="text"
+                                value={data.site_name}
+                                onChange={(e) => setData('site_name', e.target.value)}
+                                className="w-full px-4 py-2.5 rounded-xl glass-input text-sm"
+                            />
+                        </div>
+
+                        {/* Website Logo Upload & Live Preview */}
+                        <div className="p-5 rounded-2xl bg-[#041228]/80 border border-[#1769FF]/30 space-y-4">
+                            <div className="flex items-center justify-between">
+                                <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                                    Website Brand Logo
+                                </label>
+                                {previewUrl && (
+                                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                                        New Image Selected (Click Save Below)
+                                    </span>
+                                )}
                             </div>
-                            <div>
-                                <label className="block text-xs font-semibold text-slate-300 mb-1">Logo Asset Path</label>
+
+                            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
+                                {/* Preview Box */}
+                                <div className="p-3 rounded-2xl bg-[#030E1F] border border-[#1769FF]/40 flex items-center justify-center min-w-[200px] h-20 shadow-inner">
+                                    <img
+                                        src={previewUrl || data.site_logo || '/images/digitaljao-logo.png'}
+                                        alt="Logo Preview"
+                                        className="max-h-14 w-auto object-contain"
+                                    />
+                                </div>
+
+                                {/* Upload Controls */}
+                                <div className="flex-1 space-y-2">
+                                    <div className="flex flex-wrap items-center gap-3">
+                                        <label className="cursor-pointer inline-flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs bg-gradient-to-r from-[#1769FF] to-[#19C8F5] text-white shadow-neon hover:scale-105 active:scale-95 transition-all">
+                                            <Upload className="w-4 h-4" />
+                                            <span>Upload New Logo File</span>
+                                            <input
+                                                type="file"
+                                                accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                                                className="hidden"
+                                                onChange={handleLogoFileChange}
+                                            />
+                                        </label>
+
+                                        {previewUrl && (
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    setPreviewUrl(null);
+                                                    setData('site_logo_file', null);
+                                                }}
+                                                className="px-3 py-2 text-xs font-semibold text-slate-400 hover:text-rose-400 transition-colors"
+                                            >
+                                                Cancel
+                                            </button>
+                                        )}
+                                    </div>
+                                    <p className="text-[11px] text-slate-400">
+                                        Supports PNG (transparent), JPG, WebP, or SVG. File size up to 5MB.
+                                    </p>
+                                    {errors.site_logo_file && (
+                                        <p className="text-rose-400 text-xs font-medium">{errors.site_logo_file}</p>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Manual Path Fallback */}
+                            <div className="pt-2 border-t border-slate-800/80">
+                                <label className="block text-[11px] font-medium text-slate-400 mb-1">
+                                    Or Manual Asset Path / Remote URL
+                                </label>
                                 <input
                                     type="text"
                                     value={data.site_logo}
                                     onChange={(e) => setData('site_logo', e.target.value)}
-                                    className="w-full px-4 py-2.5 rounded-xl glass-input text-sm"
+                                    placeholder="/images/digitaljao-logo.png"
+                                    className="w-full px-4 py-2 rounded-xl glass-input text-xs font-mono"
                                 />
                             </div>
                         </div>

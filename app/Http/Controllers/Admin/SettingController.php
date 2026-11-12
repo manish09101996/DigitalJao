@@ -22,6 +22,10 @@ class SettingController extends Controller
 
     public function update(Request $request): RedirectResponse
     {
+        $request->validate([
+            'site_logo_file' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:5120',
+        ]);
+
         $data = $request->except(['_token', 'site_logo_file']);
 
         if ($request->hasFile('site_logo_file')) {

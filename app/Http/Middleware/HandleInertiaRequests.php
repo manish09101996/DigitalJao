@@ -41,7 +41,11 @@ class HandleInertiaRequests extends Middleware
         }
 
         // Ensure site_logo resolves to full URL
-        if (empty($settings['site_logo']) || !str_starts_with($settings['site_logo'], 'http')) {
+        if (!empty($settings['site_logo'])) {
+            if (!str_starts_with($settings['site_logo'], 'http')) {
+                $settings['site_logo'] = asset(ltrim($settings['site_logo'], '/'));
+            }
+        } else {
             $settings['site_logo'] = asset('images/digitaljao-logo.png');
         }
 
@@ -52,7 +56,7 @@ class HandleInertiaRequests extends Middleware
                 'is_admin' => $request->user() ? $request->user()->isAdmin() : false,
             ],
             'settings' => $settings,
-            'logo_url' => asset('images/digitaljao-logo.png'),
+            'logo_url' => $settings['site_logo'],
             'app_url' => url('/'),
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),
